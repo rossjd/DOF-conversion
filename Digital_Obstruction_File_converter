@@ -1,0 +1,143 @@
+import csv, os  # The working folder should contain all of the .Dat FAA Obstacle files from: https://nfdc.faa.gov/tod/public/TOD_DOF.html
+
+root = r'C:\My Documents' #change this path to the folder containing your .DAT files
+
+# Convert every .Dat file to a .csv; Convert DMS to Decimal Degrees for mapping
+for eachFile in os.listdir( root ):
+    if eachFile.lower().startswith("chg.d"):
+        dat = open(os.path.join(root, eachFile), 'r')
+        csvOut = os.path.join(root, dat.name[:-4] + ".csv")
+        f = open(csvOut, 'w',newline='')
+        wr = csv.writer(f, quoting=csv.QUOTE_ALL)        
+
+        # Create a header row in the CSV file containing all field names
+        header = ["action", "ObstacleNo", "ver_status", "Country", "State", "City", "latdeg", 
+                  "latmin", "latsec", "N_S", "latitude", "londeg", "lonmin", "lonsec", 
+                  "E_W", "longitude", "Type", "QTY", "AGL_HT", "AMSL_HT", "Lighting", 
+                  "horz_acc", "vert_acc", "marking", "FAA_no", "Action", "Julian_dt","DATCHK"]
+
+        wr.writerow(header)
+        
+        i=-1
+        for line in dat:
+            i+=1
+            # Skip the first 3 rows (they include poorly formatted header information)
+            if i < 4:
+                continue
+            # .Dat files have fixed-width columns; the data is always in the same position within a row
+            else:
+                act     = line[0:9]
+                ORS     = line[10:19] # These nine characters collectively represent the Obstacle number
+                v       = line[20:21]
+                country = line[22:24]
+                state   = line[25:27]
+                city    = line[28:45]
+                latDeg  = line[45:47]
+                latMin  = line[47:50]
+                latSec  = line[50:56]
+                latHem  = line[56:57]
+                lonDeg  = line[57:61]
+                lonMin  = line[61:64]
+                lonSec  = line[64:70]
+                lonHem  = line[70:71]
+                obType  = line[72:90]
+                qty     = line[91:92]
+                agl     = line[93:98]
+                amsl    = line[99:104]
+                lt      = line[105:106]
+                ah      = line[107:108]
+                ccv     = line[109:110]
+                MIN     = line[111:112]
+                study   = line[113:127]
+                action  = line[128:129]
+                jDate   = line[129:136]
+                DCHK    = line[137:143]
+
+                # Convert DMS to Decimal Degrees (N vs. S determines if the value is positive or negative)
+                if latHem == "N":
+                    latitude = (float(latDeg)+(float(latMin)/60)+(float(latSec)/3600))
+                else:
+                    latitude = -1*(float(latDeg)+(float(latMin)/60)+(float(latSec)/3600))
+
+                # Convert DMS to Decimal Degrees (E vs. W determines if the value is positive or negative)
+                if lonHem == "E":
+                    longitude = (float(lonDeg)+(float(lonMin)/60)+(float(lonSec)/3600))
+                else:
+                    longitude = -1*(float(lonDeg)+(float(lonMin)/60)+(float(lonSec)/3600))
+                csvLine = [act, ORS, v, country, state, city, latDeg, latMin, latSec, 
+                           latHem, latitude, lonDeg, lonMin, lonSec, lonHem, longitude, 
+                           obType, qty, agl, amsl, lt, ah, ccv, MIN, study, action, jDate,DCHK]
+                wr.writerow(csvLine)
+
+        f.close()
+        dat.close()
+        print (dat.name[:-4],'-> Transcribed',str(i),'rows')
+        
+    elif eachFile.lower().endswith(".dat"):
+        dat = open(os.path.join(root, eachFile), 'r')
+        csvOut = os.path.join(root, dat.name[:-4] + ".csv")
+        f = open(csvOut, 'w',newline='')
+        wr = csv.writer(f, quoting=csv.QUOTE_ALL)        
+
+        # Create a header row in the CSV file containing all field names
+        header = ["ObstacleNo", "ver_status", "Country", "State", "City", "latdeg", 
+                  "latmin", "latsec", "N_S", "latitude", "londeg", "lonmin", "lonsec", 
+                  "E_W", "longitude", "Type", "QTY", "AGL_HT", "AMSL_HT", "Lighting", 
+                  "horz_acc", "vert_acc", "marking", "FAA_no", "Action", "Julian_dt"]
+
+        wr.writerow(header)
+        
+        i=-1
+        for line in dat:
+            i+=1
+            # Skip the first 3 rows (they include poorly formatted header information)
+            if i < 4:
+                continue
+            # .Dat files have fixed-width columns; the data is always in the same position within a row
+            else:
+                #counter += 1
+                ORS     = line[0:9] # The first 9 characters of the row represent the Obstacle number
+                v       = line[10:11]
+                country = line[12:14]
+                state   = line[15:17]
+                city    = line[18:35]
+                latDeg  = line[35:37]
+                latMin  = line[37:40]
+                latSec  = line[40:46]
+                latHem  = line[46:47]
+                lonDeg  = line[47:51]
+                lonMin  = line[51:54]
+                lonSec  = line[54:60]
+                lonHem  = line[60:61]
+                obType  = line[62:80]
+                qty     = line[81:82]
+                agl     = line[83:88]
+                amsl    = line[89:94]
+                lt      = line[95:96]
+                ah      = line[97:98]
+                ccv     = line[99:100]
+                MIN     = line[101:102]
+                study   = line[103:117]
+                action  = line[118:119]
+                jDate   = line[120:127]
+
+                # Convert DMS to Decimal Degrees (N vs. S determines if the value is positive or negative)
+                if latHem == "N":
+                    latitude = (float(latDeg)+(float(latMin)/60)+(float(latSec)/3600))
+                else:
+                    latitude = -1*(float(latDeg)+(float(latMin)/60)+(float(latSec)/3600))
+
+                # Convert DMS to Decimal Degrees (E vs. W determines if the value is positive or negative)
+                if lonHem == "E":
+                    longitude = (float(lonDeg)+(float(lonMin)/60)+(float(lonSec)/3600))
+                else:
+                    longitude = -1*(float(lonDeg)+(float(lonMin)/60)+(float(lonSec)/3600))
+                csvLine = [ORS, v, country, state, city, latDeg, latMin, latSec, 
+                           latHem, latitude, lonDeg, lonMin, lonSec, lonHem, longitude, 
+                           obType, qty, agl, amsl, lt, ah, ccv, MIN, study, action, jDate]
+                wr.writerow(csvLine)
+
+        f.close()
+        dat.close()
+        print (dat.name[:-4],'-> Transcribed',str(i),'rows')
+print ('FINISHED')
